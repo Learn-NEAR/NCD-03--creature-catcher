@@ -1,106 +1,45 @@
-import { context, logging, storage, PersistentDeque } from "near-sdk-as";
+import { logging, math, PersistentDeque } from "near-sdk-as";
 
-/**
- * showYouKnow is a
- * - "view" function (ie. does not alter state)
- * - that takes no parameters
- * - and returns nothing
- *
- * - it has the side effect of appending to the log
- */
-export function showYouKnow(): void {
-  logging.log("showYouKnow() was called");
-}
-
-/**
- * same as above but returns true for better UX
- * @returns bool that is always true
- */
-export function showYouKnow2(): bool {
-  logging.log("showYouKnow2() was called");
-  return true
-}
-
-/**
- * sayHello is a
- * - "view" function (ie. does not alter state)
- * - that takes no parameters
- * - and returns a string
- *
- * - it has the side effect of appending to the log
- */
-export function sayHello(): string {
-  logging.log("sayHello() was called");
-
-  return "Hello!";
-}
-
-/**
- * sayMyName is a
- * - "change" function (although it does NOT alter state, it DOES read from context)
- * - that takes no parameters
- * - and returns a string
- *
- * - it has the side effect of appending to the log
- */
-export function sayMyName(): string {
-  logging.log("sayMyName() was called");
-
-  return "Hello, " + context.sender + "!";
-}
-
-/**
- * saveMyName is a
- * - "change" function (ie. alters state)
- * - that takes no parameters
- * - saves the sender account name to contract state
- * - and returns nothing
- *
- * - it has the side effect of appending to the log
- */
-export function saveMyName(): void {
-  logging.log("saveMyName() was called");
-
-  storage.setString("last_sender", context.sender);
-}
-
-/**
- * saveMyMessage is a
- * - "change" function (ie. alters state)
- * - that takes no parameters
- * - saves the sender account name and message to contract state
- * - and returns nothing
- *
- * - it has the side effect of appending to the log
- */
-export function saveMyMessage(message: string): bool {
-  logging.log("saveMyMessage() was called");
-
-  assert(message.length > 0, "Message can not be blank.");
-  const messages = new PersistentDeque<string>("messages");
-  messages.pushFront(context.sender + " says " + message);
-
-  return true;
-}
-
-/**
- * getAllMessages is a
- * - "change" function (ie. alters state)
- * - that takes no parameters
- * - reads and removes all recorded messages from contract state (this can become expensive!)
- * - and returns an array of messages if any are found, otherwise empty array
- *
- * - it has the side effect of appending to the log
- */
-export function getAllMessages(): Array<string> {
-  logging.log("getAllMessages() was called");
-
-  const messages = new PersistentDeque<string>("messages");
+export function getAllCreatures(): Array<string> {
+  logging.log("called getTotalCreatures");
+  const creatures = new PersistentDeque<string>("creatures");
   let results = new Array<string>();
-
-  while (!messages.isEmpty) {
-    results.push(messages.popBack());
+  while (!creatures.isEmpty) {
+    results.push(creatures.popBack());
   }
-
   return results;
+}
+
+function _randomNum(maxNumber: u32): u32 {
+  let buf = math.randomBuffer(4);
+  return (
+    (((0xff & buf[0]) << 24) |
+      ((0xff & buf[1]) << 16) |
+      ((0xff & buf[2]) << 8) |
+      ((0xff & buf[3]) << 0)) %
+    maxNumber
+  );
+}
+
+export function attemptCatch(): void {
+  const creature1 = "{ 'name': 'scorpion' }";
+  const creature2 = "{ 'name': 'rat' }";
+  const creature3 = "{ 'name': 'dog' }";
+  const wildCreatures = new PersistentDeque<string>("wild");
+  wildCreatures.pushFront(creature1);
+  wildCreatures.pushFront(creature2);
+  wildCreatures.pushFront(creature3);
+  const creatures = new PersistentDeque<string>("creatures");
+  const attempt = _randomNum(2);
+  const randomCreatureSelectIndex = _randomNum(3);
+  if (attempt > 0) {
+    const caughtCreature = wildCreatures[randomCreatureSelectIndex];
+    logging.log(caughtCreature);
+    creatures.pushFront(caughtCreature);
+  } else {
+    logging.log("Failed to catch creature");
+  }
+  logging.log("attempted to catch");
+  logging.log(attempt);
+  logging.log(randomCreatureSelectIndex);
 }
