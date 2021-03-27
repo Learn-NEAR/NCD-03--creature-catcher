@@ -1,3 +1,6 @@
+![nearcontractcomplete](https://user-images.githubusercontent.com/5507707/112725000-2aaa9c80-8ed3-11eb-8bde-20fcf82a420d.png)
+
+
 # Sample
 
 This repository includes a complete project structure for AssemblyScript contracts targeting the NEAR platform.
