@@ -1,17 +1,19 @@
-import { logging, math, PersistentDeque } from "near-sdk-as";
+import { logging, math } from "near-sdk-as";
+import { Specimen, specimen } from "./models";
 
-export function getAllCreatures(): Array<string> {
+export function getAllCreatures(): Array<Specimen> {
   logging.log("called getTotalCreatures");
-  const creatures = new PersistentDeque<string>("creatures");
-  let results = new Array<string>();
-  while (!creatures.isEmpty) {
-    results.push(creatures.popBack());
+  let results = new Array<Specimen>();
+  while (!specimen.isEmpty) {
+    results.push(specimen.pop());
   }
+
   return results;
 }
 
 function _randomNum(maxNumber: u32): u32 {
   let buf = math.randomBuffer(4);
+
   return (
     (((0xff & buf[0]) << 24) |
       ((0xff & buf[1]) << 16) |
@@ -22,20 +24,20 @@ function _randomNum(maxNumber: u32): u32 {
 }
 
 export function attemptCatch(): void {
-  const creature1 = "{ 'name': 'scorpion' }";
-  const creature2 = "{ 'name': 'rat' }";
-  const creature3 = "{ 'name': 'dog' }";
-  const wildCreatures = new PersistentDeque<string>("wild");
-  wildCreatures.pushFront(creature1);
-  wildCreatures.pushFront(creature2);
-  wildCreatures.pushFront(creature3);
-  const creatures = new PersistentDeque<string>("creatures");
+  const creature1 = new Specimen("scorpion", 3);
+  const creature2 = new Specimen("rat", 2);
+  const creature3 = new Specimen("dog", 1);
+
+  const wildCreatures = new Array<Specimen>();
+  wildCreatures.push(creature1);
+  wildCreatures.push(creature2);
+  wildCreatures.push(creature3);
   const attempt = _randomNum(2);
   const randomCreatureSelectIndex = _randomNum(3);
   if (attempt > 0) {
     const caughtCreature = wildCreatures[randomCreatureSelectIndex];
     logging.log(caughtCreature);
-    creatures.pushFront(caughtCreature);
+    specimen.push(caughtCreature);
   } else {
     logging.log("Failed to catch creature");
   }
